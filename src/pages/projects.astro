@@ -1,0 +1,95 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { client, type ProjectListResponse } from "../lib/microcms";
+
+// 1. Astroの特別な関数を使って、ビルド時にデータを取得
+const projectsData = await client.get<ProjectListResponse>({
+    endpoint: "projects", // 作成したAPIのサービスID
+    queries: { limit: 100 }, // 一度に取得する件数を設定
+});
+
+const projects = projectsData.contents;
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<Layout title="Projects | 制作実績">
+    <section class="page-header">
+        <h1>制作実績 (Projects)</h1>
+        <p>これまで取り組んできた主要なプロジェクトをご紹介します。</p>
+    </section>
+
+    <section class="projects-grid">
+        {
+            projects.map((project) => (
+                <a href={`${baseUrl}/projects/${project.id}`} class="project-card">
+                    <img
+                        src={project.thumbnail.url}
+                        alt={`${project.title}のサムネイル`}
+                        class="project-thumbnail"
+                    />
+                    <div class="project-info">
+                        <h2>{project.title}</h2>
+                        <p>{project.overview}</p>
+                    </div>
+                </a>
+            ))
+        }
+
+        {projects.length === 0 && <p>現在、制作実績が登録されていません。</p>}
+    </section>
+
+    <div class="button-container">
+        <a href={`${baseUrl}/`} class="button">Home</a>
+        <a href={`${baseUrl}/about`} class="button">About</a>
+    </div>
+</Layout>
+
+<style>
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    .project-card {
+        display: flex;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        text-decoration: none;
+        color: inherit;
+        transition: box-shadow 0.3s ease;
+        align-items: center;
+        flex-flow: column;
+        padding: 1rem 1rem 0 1rem;
+    }
+    .project-card p {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 2;
+    }
+    img {
+
+        height: 200px;
+        border-radius: 8px;
+    }
+    .project-info {
+        margin-top: 1rem;
+        text-align: center;
+    }
+    .button-container {
+        display: flex;
+        margin-top: 4rem;
+        justify-content: space-between;
+    }
+    .button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        background-color: #0070f3;
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+</style>

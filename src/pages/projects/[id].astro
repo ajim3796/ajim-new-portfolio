@@ -1,0 +1,148 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { client, type ProjectListResponse, type Project } from '../../lib/microcms';
+
+// ===================================
+// 1. getStaticPaths: どのURLでページを生成するか定義
+// ===================================
+// MicroCMSから全コンテンツのIDを取得し、静的サイトのパスを生成します。
+export async function getStaticPaths() {
+  // APIから全リストを取得
+  const response = await client.get<ProjectListResponse>({
+    endpoint: 'projects',
+    // IDのみ取得することで通信量を削減
+    queries: { fields: ['id'] }
+  });
+
+  // 取得したIDを使って、生成すべきパスの配列を作成して返す
+  return response.contents.map((project) => ({
+    params: { id: project.id }, // URLのパス（projects/[id]のid部分）
+  }));
+}
+
+// ===================================
+// 2. コンポーネント部分: データを取得しページをレンダリング
+// ===================================
+
+// getStaticPathsで定義されたparams（ここでは{id}）をpropsとして受け取ります
+const { id } = Astro.params;
+
+// 該当IDのコンテンツをMicroCMSから取得
+let project: Project | null = null;
+try {
+  project = await client.get<Project>({
+    endpoint: 'projects',
+    contentId: id,
+  });
+} catch (error) {
+  // ビルド中にエラーが発生した場合のログ
+  console.error(`Project data could not be retrieved for ID: ${id}`, error);
+}
+
+// データが見つからない場合の処理 (通常は404処理)
+if (!project) {
+  // 静的サイト生成時なので、ビルドエラーを避けるため、ここでは簡易的な処理に留めます。
+  // 実行時（SSR/SSG後）の動作は、別途Astroの設定が必要です。
+  // 一旦、ここではnullを返します。
+  return null;
+}
+
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<Layout title={`${project.title} | 制作実績`}>
+  <article class="project-detail">
+    <header class="detail-header">
+      <h1>{project.title}</h1>
+
+      {/* サイトURLがあれば表示 */}
+      {project.site_url && (
+        <a href={project.site_url} target="_blank" rel="noopener noreferrer" class="cta-button">
+          サイトはこちら &rarr;
+        </a>
+      )}
+
+      <p class="period">制作期間 : {project.production_period || '-'}</p>
+
+
+      {/* サムネイル画像 */}
+      {project.thumbnail?.url && (
+        <img src={project.thumbnail.url} alt={`${project.title}のメイン画像`} class="main-image" />
+      )}
+    </header>
+
+    <div class="content-body">
+
+      {/* 目的 */}
+      <section>
+        <h2>プロジェクトの目的</h2>
+        {/* 🌟 修正済み: set:htmlをdivタグに直接適用 */}
+        {project.purpose && <div set:html={project.purpose} />}
+      </section>
+
+      {/* 技術スタック */}
+      <section>
+        <h2>使用技術</h2>
+        <div class="tech-stack">
+          {/* technologies が存在し、文字列であることを確認してから分割 */}
+          {project.technologies && project.technologies.map((tech) => (
+            <span class="tech-tag">{tech.trim()}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* 課題と解決策 (最も重要なセクション) */}
+      <section class="solution-section">
+        <h2>課題と解決策</h2>
+        {/* 🌟 修正済み: set:htmlをdivタグに直接適用 */}
+        {project.problem_solution && <div set:html={project.problem_solution} />}
+      </section>
+
+      {/* ソースコードURL */}
+      {project.source_code_url && (
+        <section class="source-section">
+          <h2>ソースコード</h2>
+          <a href={project.source_code_url} target="_blank" rel="noopener noreferrer">
+            GitHubリポジトリ &rarr;
+          </a>
+        </section>
+      )}
+
+    </div>
+  </article>
+
+    <div class="button-container">
+        <a href={`${baseUrl}/`} class="button">Home</a>
+        <a href={`${baseUrl}/projects`} class="button">Projects</a>
+    </div>
+</Layout>
+
+<style>
+  .main-image {
+    width: auto;
+    max-height: 500px;
+  }
+  .tech-tag {
+    display: inline-block;
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 0.4rem 0.8rem;
+    margin: 0.2rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  .button-container {
+    display: flex;
+    margin-top: 4rem;
+    justify-content: space-between;
+  }
+    .button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        background-color: #0070f3;
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+</style>

@@ -1,0 +1,34 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ProfileContent from "../content/profile.mdx";
+
+// ここにAPIからプロフィールデータを取得するロジックが入る（将来のステップ）
+// const profile = await microCMS.getProfileData();
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<Layout title="About">
+    <ProfileContent />
+
+    <div class="button-container">
+        <a href={`${baseUrl}/`} class="button">Home</a>
+        <a href={`${baseUrl}/projects`} class="button">Projects</a>
+    </div>
+</Layout>
+
+<style>
+    .button-container {
+        display: flex;
+        margin-top: 4rem;
+        justify-content: space-between;
+    }
+    .button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        background-color: #0070f3;
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+</style>
