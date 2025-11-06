@@ -1,6 +1,10 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { client, type ProjectListResponse, type Project } from '../../lib/microcms';
+import Layout from "../../layouts/Layout.astro";
+import {
+  client,
+  type ProjectListResponse,
+  type Project,
+} from "../../lib/microcms";
 
 // ===================================
 // 1. getStaticPaths: どのURLでページを生成するか定義
@@ -9,9 +13,9 @@ import { client, type ProjectListResponse, type Project } from '../../lib/microc
 export async function getStaticPaths() {
   // APIから全リストを取得
   const response = await client.get<ProjectListResponse>({
-    endpoint: 'projects',
+    endpoint: "projects",
     // IDのみ取得することで通信量を削減
-    queries: { fields: ['id'] }
+    queries: { fields: ["id"] },
   });
 
   // 取得したIDを使って、生成すべきパスの配列を作成して返す
@@ -31,7 +35,7 @@ const { id } = Astro.params;
 let project: Project | null = null;
 try {
   project = await client.get<Project>({
-    endpoint: 'projects',
+    endpoint: "projects",
     contentId: id,
   });
 } catch (error) {
@@ -52,24 +56,47 @@ if (!project) {
   <article class="project-detail">
     <header class="detail-header">
       <h1>{project.title}</h1>
-
-      {/* サイトURLがあれば表示 */}
-      {project.site_url && (
-        <a href={project.site_url} target="_blank" rel="noopener noreferrer" class="cta-button">
-          サイトはこちら &rarr;
-        </a>
-      )}
-
-      <p class="period">制作期間 : {project.production_period || '-'}</p>
-
-
       {/* サムネイル画像 */}
-      {project.thumbnail?.url && (
-        <img src={project.thumbnail.url} alt={`${project.title}のメイン画像`} class="main-image" />
-      )}
+      {
+        project.thumbnail?.url && (
+          <img
+            src={project.thumbnail.url}
+            alt={`${project.title}のメイン画像`}
+            class="main-image"
+          />
+        )
+      }
     </header>
 
     <div class="content-body">
+      <p class="period">制作期間 : {project.production_period || "-"}</p>
+      {/* サイトURLがあれば表示 */}
+      {
+        project.site_url ? (
+          <a
+            href={project.site_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cta-button"
+          >
+            サイトはこちら &rarr;
+          </a>
+        ) : (
+          <p>サイトは現在公開されていません</p>
+        )
+      }
+      {/* ソースコードURL */}
+      {
+        project.source_code_url && (
+          <a
+            href={project.source_code_url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHubリポジトリ &rarr;
+          </a>
+        )
+      }
 
       {/* 目的 */}
       <section>
@@ -83,9 +110,12 @@ if (!project) {
         <h2>使用技術</h2>
         <div class="tech-stack">
           {/* technologies が存在し、文字列であることを確認してから分割 */}
-          {project.technologies && project.technologies.map((tech) => (
-            <span class="tech-tag">{tech.trim()}</span>
-          ))}
+          {
+            project.technologies &&
+              project.technologies.map((tech) => (
+                <span class="tech-tag">{tech.trim()}</span>
+              ))
+          }
         </div>
       </section>
 
@@ -93,32 +123,31 @@ if (!project) {
       <section class="solution-section">
         <h2>課題と解決策</h2>
         {/* 🌟 修正済み: set:htmlをdivタグに直接適用 */}
-        {project.problem_solution && <div set:html={project.problem_solution} />}
+        {
+          project.problem_solution && (
+            <div set:html={project.problem_solution} />
+          )
+        }
       </section>
-
-      {/* ソースコードURL */}
-      {project.source_code_url && (
-        <section class="source-section">
-          <h2>ソースコード</h2>
-          <a href={project.source_code_url} target="_blank" rel="noopener noreferrer">
-            GitHubリポジトリ &rarr;
-          </a>
-        </section>
-      )}
-
     </div>
   </article>
 
-    <div class="button-container">
-        <a href="/" class="button">Home</a>
-        <a href="/projects" class="button">Projects</a>
-    </div>
+  <div class="button-container">
+    <a href="/" class="button">Home</a>
+    <a href="/projects" class="button">Projects</a>
+  </div>
 </Layout>
 
 <style>
   .main-image {
     width: auto;
     max-height: 500px;
+    min-width: 200px;
+    box-shadow: #929292 0px 4px 16px;
+  }
+  .content-body {
+    display: flex;
+    flex-direction: column;
   }
   .tech-tag {
     display: inline-block;
@@ -134,13 +163,13 @@ if (!project) {
     margin-top: 4rem;
     justify-content: space-between;
   }
-    .button {
-        display: inline-block;
-        padding: 0.8rem 2rem;
-        background-color: #0070f3;
-        color: white;
-        font-weight: bold;
-        text-decoration: none;
-        border-radius: 4px;
-    }
+  .button {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background-color: #0070f3;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 4px;
+  }
 </style>
