@@ -4,15 +4,14 @@ import ProfileContent from "../content/profile.mdx";
 
 // ここにAPIからプロフィールデータを取得するロジックが入る（将来のステップ）
 // const profile = await microCMS.getProfileData();
-const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <Layout title="About">
     <ProfileContent />
 
     <div class="button-container">
-        <a href={`${baseUrl}/`} class="button">Home</a>
-        <a href={`${baseUrl}/projects`} class="button">Projects</a>
+        <a href="/" class="button">Home</a>
+        <a href="/projects" class="button">Projects</a>
     </div>
 </Layout>
 

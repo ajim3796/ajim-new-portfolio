@@ -1,6 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <Layout title="Home">
@@ -10,8 +9,8 @@ const baseUrl = import.meta.env.BASE_URL;
       <h1>ようこそ</h1>
       <p>バックエンド(Python)からフロントエンド(HTML/CSS/JavaScript)まで幅広く対応します。</p>
       <div class="button-container">
-        <a href={`${baseUrl}/about`} class="button">About</a>
-        <a href={`${baseUrl}/projects`} class="button">Projects</a>
+        <a href="/about" class="button">About</a>
+        <a href="/projects" class="button">Projects</a>
       </div>
       <h2>Social Links</h2>
       <div class="sns-container">

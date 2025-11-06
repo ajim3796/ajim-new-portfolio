@@ -46,8 +46,6 @@ if (!project) {
   // 一旦、ここではnullを返します。
   return null;
 }
-
-const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <Layout title={`${project.title} | 制作実績`}>
@@ -112,8 +110,8 @@ const baseUrl = import.meta.env.BASE_URL;
   </article>
 
     <div class="button-container">
-        <a href={`${baseUrl}/`} class="button">Home</a>
-        <a href={`${baseUrl}/projects`} class="button">Projects</a>
+        <a href="/" class="button">Home</a>
+        <a href="/projects" class="button">Projects</a>
     </div>
 </Layout>
 

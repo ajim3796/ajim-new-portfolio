@@ -9,7 +9,6 @@ const projectsData = await client.get<ProjectListResponse>({
 });
 
 const projects = projectsData.contents;
-const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <Layout title="Projects | 制作実績">
@@ -21,7 +20,7 @@ const baseUrl = import.meta.env.BASE_URL;
     <section class="projects-grid">
         {
             projects.map((project) => (
-                <a href={`${baseUrl}/projects/${project.id}`} class="project-card">
+                <a href={`/projects/${project.id}`} class="project-card">
                     <img
                         src={project.thumbnail.url}
                         alt={`${project.title}のサムネイル`}
@@ -39,8 +38,8 @@ const baseUrl = import.meta.env.BASE_URL;
     </section>
 
     <div class="button-container">
-        <a href={`${baseUrl}/`} class="button">Home</a>
-        <a href={`${baseUrl}/about`} class="button">About</a>
+        <a href="/" class="button">Home</a>
+        <a href="/about" class="button">About</a>
     </div>
 </Layout>
 
